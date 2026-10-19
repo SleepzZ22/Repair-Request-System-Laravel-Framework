@@ -261,41 +261,167 @@
                 </div>
             @endif
 
-            <!-- Role Action: UPDATE STATUS PANEL (สำหรับช่างที่รับผิดชอบ หรือ แอดมิน) -->
+            <!-- Role Action: STATUS & ACTIONS (สำหรับช่างที่รับผิดชอบ หรือ แอดมิน) -->
             @if(Auth::user()?->isAdmin() || Auth::user()?->isTechnician())
-                <div class="card" style="border: 2px solid var(--border);">
-                    <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">
-                        🛠️ บันทึกผลและอัปเดตสถานะ
-                    </h3>
-                    <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
-                        เปลี่ยนสถานะของงาน และบันทึกรายละเอียดขั้นตอนการซ่อม
-                    </p>
-
-                    <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST">
-                        @csrf
-                        @method('PATCH')
-
-                        <div class="form-group">
-                            <label class="form-label" for="status">สถานะงานใหม่:</label>
-                            <select id="status" name="status" class="form-select">
-                                <option value="pending" {{ $ticket->status == 'pending' ? 'selected' : '' }}>รอดำเนินการ (Pending)</option>
-                                <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการซ่อม (In Progress)</option>
-                                <option value="waiting_parts" {{ $ticket->status == 'waiting_parts' ? 'selected' : '' }}>รออะไหล่ / ส่งซ่อมภายนอก (Waiting Parts)</option>
-                                <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>ซ่อมเสร็จสิ้น / ปิดงาน (Completed)</option>
-                                <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>ยกเลิกใบงาน (Cancelled)</option>
-                            </select>
+                @if($ticket->status === 'completed')
+                    <!-- 🌟 Completed State Card (แสดงเมื่อซ่อมเสร็จสิ้นแล้ว แทนที่ฟอร์มอัปเดต) -->
+                    <div class="card completed-success-card" style="border: 2px solid #10b981; background: linear-gradient(145deg, #f0fdf4 0%, #ecfdf5 100%); position: relative; overflow: hidden;">
+                        <div style="position: absolute; right: -15px; top: -15px; width: 80px; height: 80px; background: rgba(16, 185, 129, 0.08); border-radius: 50%;"></div>
+                        
+                        <div style="display: flex; align-items: center; gap: 0.85rem; margin-bottom: 0.85rem; position: relative;">
+                            <div class="completed-check-icon">
+                                ✓
+                            </div>
+                            <div>
+                                <h3 style="font-size: 1.1rem; font-weight: 700; color: #065f46; margin: 0;">
+                                    งานซ่อมเสร็จสิ้นแล้ว
+                                </h3>
+                                <span style="font-size: 0.775rem; color: #059669; font-weight: 600;">
+                                    Job Successfully Completed
+                                </span>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label class="form-label" for="note">บันทึกขั้นตอนการซ่อม / วิธีการแก้ไข:</label>
-                            <textarea id="note" name="note" class="form-control" style="min-height: 85px;" placeholder="ระบุสิ่งที่ได้ตรวจเช็ค หรือชิ้นส่วนที่เปลี่ยน เพื่อเป็นประวัติการซ่อม...">{{ $ticket->repair_notes }}</textarea>
+                        <p style="font-size: 0.825rem; color: #047857; line-height: 1.6; margin-bottom: 1rem; position: relative;">
+                            ใบแจ้งซ่อมนี้ได้รับการตรวจเช็คและส่งมอบงานเรียบร้อยแล้ว การดำเนินการเสร็จสมบูรณ์
+                        </p>
+
+                        @if(!empty($ticket->repair_notes))
+                            <div style="background: rgba(255, 255, 255, 0.9); border: 1px solid #a7f3d0; border-radius: var(--radius-sm); padding: 0.75rem 0.95rem; margin-bottom: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                                <div style="font-size: 0.725rem; font-weight: 700; color: #065f46; margin-bottom: 0.25rem; display: flex; align-items: center; gap: 0.3rem;">
+                                    <span>📝 สรุปผลการซ่อมของช่าง:</span>
+                                </div>
+                                <div style="font-size: 0.85rem; color: #1e293b; font-style: italic; line-height: 1.5;">
+                                    "{{ $ticket->repair_notes }}"
+                                </div>
+                            </div>
+                        @endif
+
+                        <div style="display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.775rem; color: #047857; padding-top: 0.65rem; border-top: 1px dashed #6ee7b7; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>ช่างผู้ปิดงาน:</span>
+                                <strong>{{ $ticket->technician?->name ?? 'ช่างผู้รับผิดชอบ' }}</strong>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span>เวลาปิดงาน:</span>
+                                <strong>{{ $ticket->updated_at->format('d/m/Y H:i น.') }}</strong>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary" style="width: 100%;">
-                            บันทึกการอัปเดตสถานะ
-                        </button>
-                    </form>
-                </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <button type="button" onclick="window.print()" class="btn btn-sm" style="flex: 1; background: #059669; color: white; border: none; font-weight: 600; padding: 0.5rem 0.75rem;">
+                                🖨️ พิมพ์ใบส่งมอบงาน
+                            </button>
+                            
+                            <!-- ปุ่มสำหรับแอดมินหรือช่างหากต้องการแก้ไขบันทึกเพิ่มเติม -->
+                            <button type="button" onclick="toggleEditStatusForm()" class="btn btn-secondary btn-sm" style="font-size: 0.75rem; background: #ffffff;" title="ปรับปรุงบันทึก / แก้ไขสถานะ">
+                                ⚙️ แก้ไขสถานะ
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- ฟอร์มแก้ไขสถานะสำรอง (ซ่อนไว้เป็นค่าเริ่มต้น แต่เปิดได้เมื่อกดปุ่ม ⚙️) -->
+                    <div id="editStatusFormContainer" class="card" style="display: none; border: 2px dashed #94a3b8; margin-top: 1rem; animation: fadeInUp 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                            <h4 style="font-size: 0.95rem; font-weight: 700; color: var(--text-main);">
+                                🔄 แก้ไขสถานะใบงานซ่อม
+                            </h4>
+                            <button type="button" onclick="toggleEditStatusForm()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 1.1rem; padding: 0.2rem 0.5rem;">✕</button>
+                        </div>
+                        <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="form-group">
+                                <label class="form-label" for="status_edit">สถานะงานใหม่:</label>
+                                <select id="status_edit" name="status" class="form-select">
+                                    <option value="pending" {{ $ticket->status == 'pending' ? 'selected' : '' }}>รอดำเนินการ (Pending)</option>
+                                    <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการซ่อม (In Progress)</option>
+                                    <option value="waiting_parts" {{ $ticket->status == 'waiting_parts' ? 'selected' : '' }}>รออะไหล่ / ส่งซ่อมภายนอก (Waiting Parts)</option>
+                                    <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>ซ่อมเสร็จสิ้น / ปิดงาน (Completed)</option>
+                                    <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>ยกเลิกใบงาน (Cancelled)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="note_edit">บันทึกขั้นตอนการซ่อม / วิธีการแก้ไข:</label>
+                                <textarea id="note_edit" name="note" class="form-control" style="min-height: 85px;" placeholder="ระบุสิ่งที่ได้ตรวจเช็ค หรือชิ้นส่วนที่เปลี่ยน เพื่อเป็นประวัติการซ่อม...">{{ $ticket->repair_notes }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                บันทึกการอัปเดตสถานะ
+                            </button>
+                        </form>
+                    </div>
+                @elseif($ticket->status === 'cancelled')
+                    <!-- Card เมื่อใบงานถูกยกเลิก -->
+                    <div class="card" style="border: 2px solid #ef4444; background: #fef2f2;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                            <span style="font-size: 1.5rem;">❌</span>
+                            <div>
+                                <h3 style="font-size: 1.05rem; font-weight: 700; color: #991b1b; margin: 0;">
+                                    ใบงานนี้ถูกยกเลิกแล้ว
+                                </h3>
+                                <span style="font-size: 0.75rem; color: #b91c1c;">Ticket Cancelled</span>
+                            </div>
+                        </div>
+                        <p style="font-size: 0.8rem; color: #991b1b; margin-bottom: 0.75rem;">
+                            คำขอแจ้งซ่อมนี้ถูกยกเลิกการดำเนินงานเรียบร้อยแล้ว
+                        </p>
+                        @if(Auth::user()?->isAdmin())
+                            <button type="button" onclick="toggleEditStatusForm()" class="btn btn-secondary btn-sm" style="width: 100%;">
+                                🔄 เปิดงานใหม่ (Admin)
+                            </button>
+                            <div id="editStatusFormContainer" style="display: none; margin-top: 1rem;">
+                                <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST">
+                                    @csrf
+                                    @method('PATCH')
+                                    <input type="hidden" name="status" value="pending">
+                                    <div class="form-group">
+                                        <label class="form-label">เหตุผลที่เปิดงานใหม่:</label>
+                                        <textarea name="note" class="form-control" placeholder="ระบุเหตุผล..."></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-sm" style="width: 100%;">ยืนยันเปิดงานใหม่</button>
+                                </form>
+                            </div>
+                        @endif
+                    </div>
+                @else
+                    <!-- ฟอร์มอัปเดตสถานะปกติ (แสดงเมื่อสถานะยังไม่เสร็จสิ้น) -->
+                    <div class="card" style="border: 2px solid var(--border);">
+                        <h3 style="font-size: 1.05rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">
+                            🛠️ บันทึกผลและอัปเดตสถานะ
+                        </h3>
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 1rem;">
+                            เปลี่ยนสถานะของงาน และบันทึกรายละเอียดขั้นตอนการซ่อม
+                        </p>
+
+                        <form action="{{ route('tickets.updateStatus', $ticket->id) }}" method="POST">
+                            @csrf
+                            @method('PATCH')
+
+                            <div class="form-group">
+                                <label class="form-label" for="status">สถานะงานใหม่:</label>
+                                <select id="status" name="status" class="form-select">
+                                    <option value="pending" {{ $ticket->status == 'pending' ? 'selected' : '' }}>รอดำเนินการ (Pending)</option>
+                                    <option value="in_progress" {{ $ticket->status == 'in_progress' ? 'selected' : '' }}>กำลังดำเนินการซ่อม (In Progress)</option>
+                                    <option value="waiting_parts" {{ $ticket->status == 'waiting_parts' ? 'selected' : '' }}>รออะไหล่ / ส่งซ่อมภายนอก (Waiting Parts)</option>
+                                    <option value="completed" {{ $ticket->status == 'completed' ? 'selected' : '' }}>ซ่อมเสร็จสิ้น / ปิดงาน (Completed)</option>
+                                    <option value="cancelled" {{ $ticket->status == 'cancelled' ? 'selected' : '' }}>ยกเลิกใบงาน (Cancelled)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label" for="note">บันทึกขั้นตอนการซ่อม / วิธีการแก้ไข:</label>
+                                <textarea id="note" name="note" class="form-control" style="min-height: 85px;" placeholder="ระบุสิ่งที่ได้ตรวจเช็ค หรือชิ้นส่วนที่เปลี่ยน เพื่อเป็นประวัติการซ่อม...">{{ $ticket->repair_notes }}</textarea>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" style="width: 100%;">
+                                บันทึกการอัปเดตสถานะ
+                            </button>
+                        </form>
+                    </div>
+                @endif
             @endif
 
             <!-- Normal User Notice -->
@@ -314,4 +440,20 @@
         </div>
     </div>
 </div>
+@endsection
+
+@section('scripts')
+<script>
+    function toggleEditStatusForm() {
+        const formContainer = document.getElementById('editStatusFormContainer');
+        if (formContainer) {
+            if (formContainer.style.display === 'none' || formContainer.style.display === '') {
+                formContainer.style.display = 'block';
+                formContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            } else {
+                formContainer.style.display = 'none';
+            }
+        }
+    }
+</script>
 @endsection

@@ -50,6 +50,10 @@
     --font-sans: 'Prompt', 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
+html {
+    scroll-behavior: smooth;
+}
+
 * {
     margin: 0;
     padding: 0;
@@ -62,6 +66,7 @@ body {
     color: var(--text-main);
     line-height: 1.5;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     min-height: 100vh;
 }
 
@@ -352,9 +357,14 @@ body {
     border-radius: var(--radius-md);
     border: 1px solid var(--border);
     padding: 1.25rem 1.5rem;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
 }
 
-/* Minimalist Stat Cards */
+.card:hover {
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04);
+}
+
+/* Minimalist Stat Cards with Fluid Hover */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
@@ -370,6 +380,13 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.2s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.06);
+    border-color: #cbd5e1;
 }
 
 .stat-info p {
@@ -388,10 +405,15 @@ body {
 
 .stat-icon {
     font-size: 1.25rem;
-    opacity: 0.75;
+    opacity: 0.85;
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Clean Buttons */
+.stat-card:hover .stat-icon {
+    transform: scale(1.18);
+}
+
+/* Fluid Responsive Buttons */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -405,8 +427,13 @@ body {
     border: 1px solid transparent;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.15s ease;
+    transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
     white-space: nowrap;
+    user-select: none;
+}
+
+.btn:active {
+    transform: scale(0.97);
 }
 
 .btn-primary {
@@ -416,8 +443,10 @@ body {
 }
 
 .btn-primary:hover {
-    background: #27272a;
-    border-color: #27272a;
+    background: #1f2937;
+    border-color: #1f2937;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(17, 24, 39, 0.18);
 }
 
 .btn-secondary {
@@ -429,6 +458,8 @@ body {
 .btn-secondary:hover {
     background: var(--bg-subtle);
     border-color: var(--border-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .btn-outline-primary {
@@ -812,3 +843,96 @@ textarea.form-control {
         margin-left: 0;
     }
 }
+
+/* ==========================================================================
+   Fluid Animations & Micro-interactions
+   ========================================================================== */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulseGlow {
+    0%, 100% {
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+    }
+    50% {
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@keyframes slideDownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Smooth Entrance for Content */
+.content-body {
+    animation: fadeInUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) backwards;
+}
+
+.alert {
+    animation: slideDownFade 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Completed Success Card Styling */
+.completed-success-card {
+    animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 6px 18px -3px rgba(16, 185, 129, 0.12);
+}
+
+.completed-check-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #10b981;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+    font-weight: 700;
+    box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+    animation: pulseGlow 2.5s infinite;
+    flex-shrink: 0;
+}
+
+/* Fluid Button Loading State */
+.btn.btn-loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.85;
+    cursor: wait;
+}
+
+.btn.btn-loading::after {
+    content: "";
+    width: 13px;
+    height: 13px;
+    margin-left: 0.45rem;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    display: inline-block;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+}
+

@@ -160,4 +160,28 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // 7. Fluid Form Submit Feedback (Loading Spinner on Submit Button)
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', function() {
+            const submitBtn = this.querySelector('button[type="submit"]');
+            if (submitBtn && !submitBtn.classList.contains('btn-loading')) {
+                // Add loading class for spinner
+                submitBtn.classList.add('btn-loading');
+            }
+        });
+    });
+
+    // 8. Fluid Auto-dismiss Alert Notifications
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(alert => {
+        setTimeout(() => {
+            alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-6px)';
+            setTimeout(() => {
+                alert.style.display = 'none';
+            }, 400);
+        }, 4500);
+    });
 });

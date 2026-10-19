@@ -213,9 +213,15 @@
                             {{ $ticket->updated_at->format('d/m/Y H:i') }}
                         </td>
                         <td style="text-align: right;">
-                            <a href="{{ route('tickets.show', $ticket->id) }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
-                                อัปเดตงาน
-                            </a>
+                            @if($ticket->status === 'completed')
+                                <a href="{{ route('tickets.show', $ticket->id) }}" class="btn btn-sm" style="font-size: 0.75rem; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; font-weight: 600;">
+                                    ✓ ดูงานที่เสร็จแล้ว
+                                </a>
+                            @else
+                                <a href="{{ route('tickets.show', $ticket->id) }}" class="btn btn-secondary btn-sm" style="font-size: 0.75rem;">
+                                    อัปเดตงาน
+                                </a>
+                            @endif
                         </td>
                     </tr>
                 @empty
