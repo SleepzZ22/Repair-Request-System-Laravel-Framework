@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>นำเสนอระบบแจ้งซ่อมอุปกรณ์ไอที (IT ServiceDesk)</title>
+    <!-- Google Fonts: Prompt for crisp Thai readability -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Prompt', sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+        }
+
+        /* Top Progress Bar */
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 100;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: #2563eb;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Presentation Wrapper */
+        .deck-container {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 4rem;
+        }
+
+        /* Slide Component */
+        .slide {
+            display: none;
+            width: 100%;
+            max-width: 1050px;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 20px;
+            padding: 4.5rem 5rem;
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.05);
+            animation: fadeIn 0.3s ease;
+        }
+
+        .slide.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography - Large & Clean */
+        .slide-tag {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #2563eb;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .slide-title {
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.25;
+            color: #0f172a;
+            margin-bottom: 2.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .slide-subtitle {
+            font-size: 1.6rem;
+            font-weight: 400;
+            color: #475569;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        /* Content List with Large Text */
+        .point-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        .point-item {
+            font-size: 1.75rem;
+            font-weight: 500;
+            line-height: 1.5;
+            color: #1e293b;
+            display: flex;
+            align-items: flex-start;
+            gap: 1.25rem;
+        }
+
+        .point-icon {
+            font-size: 2rem;
+            line-height: 1;
+            flex-shrink: 0;
+            margin-top: 0.15rem;
+        }
+
+        .point-desc {
+            font-size: 1.25rem;
+            color: #64748b;
+            font-weight: 400;
+            margin-top: 0.35rem;
+        }
+
+        /* Simple 3-Col Box Grid */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+
+        .simple-card {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 2rem 1.5rem;
+            text-align: center;
+        }
+
+        .simple-card-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .simple-card-title {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.75rem;
+        }
+
+        .simple-card-desc {
+            font-size: 1.2rem;
+            color: #475569;
+            line-height: 1.5;
+        }
+
+        /* Step Process Horizontal Flow */
+        .step-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.25rem;
+            margin-top: 1.5rem;
+        }
+
+        .step-box {
+            background: #f8fafc;
+            border-left: 4px solid #2563eb;
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+
+        .step-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #2563eb;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+        }
+
+        .step-text {
+            font-size: 1.1rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* Bottom Controls Bar */
+        .controls-bar {
+            height: 70px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 3rem;
+        }
+
+        .slide-counter {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .control-btns {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-nav {
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            padding: 0.65rem 1.5rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .btn-nav:hover {
+            opacity: 0.85;
+        }
+
+        .btn-nav.btn-prev {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .nav-hint {
+            font-size: 0.95rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Progress Top -->
+    <div class="progress-bar-container">
+        <div class="progress-bar" id="progressBar"></div>
+    </div>
+
+    <!-- Presentation Canvas -->
+    <div class="deck-container">
+
+        <!-- สไลด์ 1: หน้าปก -->
+        <div class="slide active">
+            <div class="slide-tag">ระบบบริหารจัดการไอที</div>
+            <h1 class="slide-title" style="font-size: 3.6rem; margin-bottom: 1.5rem;">
+                IT ServiceDesk<br>
+                ระบบแจ้งซ่อมอุปกรณ์ไอที
+            </h1>
+            <p class="slide-subtitle" style="font-size: 1.75rem;">
+                พัฒนาด้วย Laravel Framework เชื่อมต่อฐานข้อมูล Supabase Cloud
+            </p>
+            <div style="margin-top: 3rem; font-size: 1.25rem; color: #64748b;">
+                นำเสนอโดย: ทีมพัฒนาโปรเจกต์
+            </div>
+        </div>
+
+        <!-- สไลด์ 2: ที่มาและความสำคัญ -->
+        <div class="slide">
+            <div class="slide-tag">01. ปัญหาและแนวคิด</div>
+            <h2 class="slide-title">ทำไมต้องมีระบบแจ้งซ่อม?</h2>
+            <ul class="point-list">
+                <li class="point-item">
+                    <span class="point-icon">❌</span>
+                    <div>
+                        <strong>ปัญหาเดิม:</strong> แจ้งซ่อมผ่านวาจา หรือส่งไลน์
+                        <div class="point-desc">ทำให้งานตกหล่น ช่างไม่ได้รับเรื่อง และตามสถานะยาก</div>
+                    </div>
+                </li>
+                <li class="point-item">
+                    <span class="point-icon">✅</span>
+                    <div>
+                        <strong>สิ่งที่ระบบเข้ามาแก้:</strong> รวมศูนย์ทุกการแจ้งซ่อมไว้ที่เดียว
+                        <div class="point-desc">บันทึกข้อมูลเป็นระเบียบ ตรวจสอบย้อนหลังได้ตลอดเวลา</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- สไลด์ 3: ผู้ใช้งาน 3 กลุ่ม -->
+        <div class="slide">
+            <div class="slide-tag">02. ผู้ใช้งานในระบบ</div>
+            <h2 class="slide-title">แบ่งการใช้งานตาม 3 บทบาท</h2>
+            <div class="cards-grid">
+                <div class="simple-card">
+                    <div class="simple-card-icon">👤</div>
+                    <div class="simple-card-title">1. พนักงานทั่วไป</div>
+                    <div class="simple-card-desc">
+                        เปิดใบแจ้งซ่อม ติดตามความคืบหน้า และดูประวัติของตนเอง
+                    </div>
+                </div>
+
+                <div class="simple-card">
+                    <div class="simple-card-icon">🛠️</div>
+                    <div class="simple-card-title">2. ช่างเทคนิค (4 คน)</div>
+                    <div class="simple-card-desc">
+                        กดรับงานซ่อม (Claim) บันทึกขั้นตอน และอัปเดตปิดงาน
+                    </div>
+                </div>
+
+                <div class="simple-card">
+                    <div class="simple-card-icon">👑</div>
+                    <div class="simple-card-title">3. แอดมิน</div>
+                    <div class="simple-card-desc">
+                        ดูภาพรวมสถิติ จัดสรรและมอบหมายงานให้ช่างแต่ละท่าน
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- สไลด์ 4: ขั้นตอนการทำงาน -->
+        <div class="slide">
+            <div class="slide-tag">03. ขั้นตอนการทำงาน</div>
+            <h2 class="slide-title">การทำงาน 4 ขั้นตอนหลัก</h2>
+            <div class="step-row">
+                <div class="step-box">
+                    <div class="step-number">ขั้นที่ 1</div>
+                    <div class="step-title">เปิดแจ้งซ่อม</div>
+                    <div class="step-text">กรอกปัญหา ระบุสถานที่ และระดับความเร่งด่วน</div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-number">ขั้นที่ 2</div>
+                    <div class="step-title">จัดสรรงาน</div>
+                    <div class="step-text">แอดมินมอบหมาย หรือช่างกดรับงานเอง</div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-number">ขั้นที่ 3</div>
+                    <div class="step-title">ตรวจซ่อม</div>
+                    <div class="step-text">ช่างเข้าตรวจสอบ บันทึกความคืบหน้า</div>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-number">ขั้นที่ 4</div>
+                    <div class="step-title">ปิดงานซ่อม</div>
+                    <div class="step-text">ระบุผลการแก้ และเปลี่ยนสถานะเสร็จสิ้น</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- สไลด์ 5: เทคโนโลยีเบื้องหลัง -->
+        <div class="slide">
+            <div class="slide-tag">04. เทคโนโลยีที่ใช้</div>
+            <h2 class="slide-title">สถาปัตยกรรมระบบ</h2>
+            <ul class="point-list">
+                <li class="point-item">
+                    <span class="point-icon">⚡</span>
+                    <div>
+                        <strong>Laravel Framework (PHP)</strong>
+                        <div class="point-desc">โครงสร้าง MVC จัดการ Logic ได้ปลอดภัย มีความเสถียรสูง</div>
+                    </div>
+                </li>
+                <li class="point-item">
+                    <span class="point-icon">☁️</span>
+                    <div>
+                        <strong>Supabase PostgreSQL (Cloud Database)</strong>
+                        <div class="point-desc">จัดเก็บข้อมูลบนคลาวด์แบบ Real-time เข้าถึงได้จากทุกที่</div>
+                    </div>
+                </li>
+                <li class="point-item">
+                    <span class="point-icon">🎨</span>
+                    <div>
+                        <strong>Clean & Modern Frontend</strong>
+                        <div class="point-desc">หน้าตาเรียบง่าย ใช้งานสะดวก และมีระบบสลับสิทธิ์ผู้ใช้ทดสอบ</div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- สไลด์ 6: จุดเด่นและสรุป -->
+        <div class="slide">
+            <div class="slide-tag">05. สรุปผลลัพธ์</div>
+            <h2 class="slide-title">ประโยชน์ที่ได้รับ</h2>
+            <ul class="point-list">
+                <li class="point-item">
+                    <span class="point-icon">📈</span>
+                    <div>
+                        <strong>ลดเวลารอคอย:</strong> ช่างทราบงานทันที กดรับงานได้รวดเร็ว
+                    </div>
+                </li>
+                <li class="point-item">
+                    <span class="point-icon">🔍</span>
+                    <div>
+                        <strong>โปร่งใส ตรวจสอบได้:</strong> มี Timeline บันทึกประวัติทุกขั้นตอน
+                    </div>
+                </li>
+                <li class="point-item">
+                    <span class="point-icon">🖨️</span>
+                    <div>
+                        <strong>ส่งมอบงานชัดเจน:</strong> มีหน้าสรุปงานเสร็จสิ้นและพิมพ์ใบงานได้
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation Bar -->
+    <div class="controls-bar">
+        <div class="slide-counter">
+            สไลด์ <span id="currentSlideNum">1</span> / <span id="totalSlidesNum">6</span>
+        </div>
+
+        <div class="nav-hint">
+            💡 กดปุ่มลูกศร ◀ ▶ บนคีย์บอร์ด หรือ Spacebar เพื่อเปลี่ยนสไลด์
+        </div>
+
+        <div class="control-btns">
+            <button class="btn-nav btn-prev" id="prevBtn" onclick="prevSlide()">ย้อนกลับ</button>
+            <button class="btn-nav" id="nextBtn" onclick="nextSlide()">ถัดไป &rarr;</button>
+        </div>
+    </div>
+
+    <!-- Navigation Script -->
+    <script>
+        const slides = document.querySelectorAll('.slide');
+        let currentSlide = 0;
+        const totalSlides = slides.length;
+
+        const progressBar = document.getElementById('progressBar');
+        const currentSlideNum = document.getElementById('currentSlideNum');
+        const totalSlidesNum = document.getElementById('totalSlidesNum');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+
+        totalSlidesNum.textContent = totalSlides;
+
+        function updateSlide() {
+            slides.forEach((slide, index) => {
+                slide.classList.toggle('active', index === currentSlide);
+            });
+
+            currentSlideNum.textContent = currentSlide + 1;
+            const progress = ((currentSlide + 1) / totalSlides) * 100;
+            progressBar.style.width = progress + '%';
+
+            prevBtn.style.visibility = currentSlide === 0 ? 'hidden' : 'visible';
+            nextBtn.textContent = currentSlide === totalSlides - 1 ? 'จบการนำเสนอ' : 'ถัดไป →';
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                currentSlide++;
+                updateSlide();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                currentSlide--;
+                updateSlide();
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'Enter') {
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                prevSlide();
+            }
+        });
+
+        // Initialize
+        updateSlide();
+    </script>
+</body>
+</html>
