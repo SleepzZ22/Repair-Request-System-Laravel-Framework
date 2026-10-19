@@ -103,8 +103,8 @@ class DatabaseSeeder extends Seeder
         );
 
         // 4. Seed Initial Tickets
-        Ticket::truncate();
-        TicketLog::truncate();
+        TicketLog::query()->delete();
+        Ticket::query()->delete();
 
         // Ticket 1: In progress with Tech 1 (สมศักดิ์)
         $t1 = Ticket::create([
