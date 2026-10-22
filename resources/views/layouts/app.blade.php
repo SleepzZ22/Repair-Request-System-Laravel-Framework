@@ -17,7 +17,7 @@
 </head>
 <body>
     @php
-        $currentUser = Auth::user() ?? \App\Models\User::where('role', 'admin')->first();
+        $currentUser = Auth::user();
     @endphp
 
     <!-- Minimalist Top Role Switcher Bar -->
@@ -25,9 +25,9 @@
         <div style="display: flex; align-items: center; gap: 0.5rem;">
             <span style="font-weight: 600; color: var(--text-main);">IT ServiceDesk</span>
             <span style="color: var(--text-subtle);">•</span>
-            <span>ผู้ใช้งาน: <strong>{{ $currentUser?->name ?? 'Guest' }}</strong></span>
+            <span>ผู้ใช้งาน: <strong>{{ $currentUser?->name ?? 'ยังไม่ได้เข้าสู่ระบบ' }}</strong></span>
             <span style="color: var(--text-subtle);">
-                ({{ $currentUser?->isAdmin() ? 'แอดมิน' : ($currentUser?->isTechnician() ? 'ช่างไอที' : 'พนักงาน') }})
+                ({{ $currentUser?->isAdmin() ? 'แอดมิน' : ($currentUser?->isTechnician() ? 'ช่างไอที' : ($currentUser ? 'พนักงาน' : 'Guest')) }})
             </span>
         </div>
 
@@ -51,9 +51,15 @@
             <a href="{{ route('auth.quickLogin', 6) }}" class="role-pill {{ $currentUser?->id == 6 ? 'active' : '' }}">
                 ผู้ใช้ (พรทิพย์)
             </a>
-            <a href="{{ route('logout') }}" class="role-pill" style="margin-left: 0.25rem;">
-                ออกจากระบบ
-            </a>
+            @if($currentUser)
+                <a href="{{ route('logout') }}" class="role-pill" style="margin-left: 0.25rem;">
+                    ออกจากระบบ
+                </a>
+            @else
+                <a href="{{ route('login') }}" class="role-pill" style="margin-left: 0.25rem; background: var(--primary); color: #fff;">
+                    เข้าสู่ระบบ
+                </a>
+            @endif
         </div>
     </div>
 
@@ -148,25 +154,36 @@
                 <div class="user-badge" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <div class="user-avatar">
-                            {{ mb_substr($currentUser?->name ?? 'U', 0, 1) }}
+                            {{ mb_substr($currentUser?->name ?? 'G', 0, 1) }}
                         </div>
                         <div class="user-info">
-                            <h4>{{ $currentUser?->name ?? 'Guest User' }}</h4>
+                            <h4>{{ $currentUser?->name ?? 'ผู้มาเยือน (Guest)' }}</h4>
                             <p>
                                 @if($currentUser?->isAdmin()) แอดมิน
                                 @elseif($currentUser?->isTechnician()) ช่างไอที
-                                @else พนักงาน
+                                @elseif($currentUser) พนักงาน
+                                @else ยังไม่ได้เข้าสู่ระบบ
                                 @endif
                             </p>
                         </div>
                     </div>
-                    <a href="{{ route('logout') }}" title="ออกจากระบบ" style="color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: var(--radius-sm); text-decoration: none;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </a>
+                    @if($currentUser)
+                        <a href="{{ route('logout') }}" title="ออกจากระบบ" style="color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: var(--radius-sm); text-decoration: none;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                                <polyline points="16 17 21 12 16 7"></polyline>
+                                <line x1="21" y1="12" x2="9" y2="12"></line>
+                            </svg>
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" title="เข้าสู่ระบบ" style="color: var(--primary); display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: var(--radius-sm); text-decoration: none;">
+                            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path>
+                                <polyline points="10 17 15 12 10 7"></polyline>
+                                <line x1="15" y1="12" x2="3" y2="12"></line>
+                            </svg>
+                        </a>
+                    @endif
                 </div>
             </div>
         </aside>
@@ -200,9 +217,15 @@
                         </a>
                     @endif
 
-                    <a href="{{ route('tickets.create') }}" class="btn btn-primary btn-sm">
-                        + แจ้งซ่อมใหม่
-                    </a>
+                    @if($currentUser)
+                        <a href="{{ route('tickets.create') }}" class="btn btn-primary btn-sm">
+                            + แจ้งซ่อมใหม่
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-sm">
+                            เข้าสู่ระบบ
+                        </a>
+                    @endif
                 </div>
             </header>
 

@@ -15,7 +15,7 @@ class TicketController extends Controller
      */
     private function getCurrentUser()
     {
-        return Auth::user() ?? User::where('role', 'admin')->first();
+        return Auth::user();
     }
 
     /**
