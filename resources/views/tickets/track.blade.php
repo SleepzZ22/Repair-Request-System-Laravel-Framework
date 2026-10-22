@@ -51,21 +51,30 @@
 
             <!-- Stepper -->
             @php
-                $steps = ['pending' => 1, 'in_progress' => 2, 'waiting_parts' => 3, 'completed' => 4];
-                $currentStepIndex = $steps[$resultTicket['status']] ?? 1;
+                $status = $resultTicket['status'] ?? 'pending';
+                $hasTech = !empty($resultTicket['technician_id']) || !empty($resultTicket['technician_name']);
+                if ($status === 'completed') {
+                    $currentStepIndex = 4;
+                } elseif (in_array($status, ['in_progress', 'waiting_parts'])) {
+                    $currentStepIndex = 3;
+                } elseif ($hasTech) {
+                    $currentStepIndex = 2;
+                } else {
+                    $currentStepIndex = 1;
+                }
                 $percent = (($currentStepIndex - 1) / 3) * 100;
             @endphp
             <div class="status-stepper" style="margin: 2rem 0;">
                 <div class="stepper-progress" style="width: {{ $percent }}%;"></div>
-                <div class="step-node {{ $currentStepIndex >= 1 ? 'completed' : '' }}">
+                <div class="step-node {{ $currentStepIndex > 1 ? 'completed' : ($currentStepIndex == 1 ? 'active' : '') }}">
                     <div class="step-circle">1</div>
                     <div class="step-title">แจ้งเรื่อง</div>
                 </div>
-                <div class="step-node {{ $currentStepIndex >= 2 ? ($currentStepIndex > 2 ? 'completed' : 'active') : '' }}">
+                <div class="step-node {{ $currentStepIndex > 2 ? 'completed' : ($currentStepIndex == 2 ? 'active' : '') }}">
                     <div class="step-circle">2</div>
                     <div class="step-title">รับเรื่องตรวจสอบ</div>
                 </div>
-                <div class="step-node {{ $currentStepIndex >= 3 ? ($currentStepIndex > 3 ? 'completed' : 'active') : '' }}">
+                <div class="step-node {{ $currentStepIndex > 3 ? 'completed' : ($currentStepIndex == 3 ? 'active' : '') }}">
                     <div class="step-circle">3</div>
                     <div class="step-title">ดำเนินการซ่อม</div>
                 </div>

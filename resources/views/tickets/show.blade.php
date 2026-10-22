@@ -62,30 +62,54 @@
         </h3>
 
         @php
-            $steps = ['pending' => 1, 'in_progress' => 2, 'waiting_parts' => 3, 'completed' => 4];
-            $currentStepIndex = $steps[$ticket->status] ?? 1;
+            $hasTech = !empty($ticket->technician_id) || !empty($ticket->technician_name);
+            if ($ticket->status === 'completed') {
+                $currentStepIndex = 4;
+            } elseif (in_array($ticket->status, ['in_progress', 'waiting_parts'])) {
+                $currentStepIndex = 3;
+            } elseif ($hasTech) {
+                $currentStepIndex = 2;
+            } else {
+                $currentStepIndex = 1;
+            }
             $percent = (($currentStepIndex - 1) / 3) * 100;
         @endphp
 
         <div class="status-stepper">
             <div class="stepper-progress" style="width: {{ $percent }}%;"></div>
 
-            <div class="step-node {{ $currentStepIndex >= 1 ? ($currentStepIndex > 1 ? 'completed' : 'active') : '' }}">
+            <div class="step-node {{ $currentStepIndex > 1 ? 'completed' : ($currentStepIndex == 1 ? 'active' : '') }}">
                 <div class="step-circle">1</div>
                 <div class="step-title">แจ้งเรื่องเข้าระบบ</div>
                 <div class="step-date">เสร็จสมบูรณ์</div>
             </div>
 
-            <div class="step-node {{ $currentStepIndex >= 2 ? ($currentStepIndex > 2 ? 'completed' : 'active') : '' }}">
+            <div class="step-node {{ $currentStepIndex > 2 ? 'completed' : ($currentStepIndex == 2 ? 'active' : '') }}">
                 <div class="step-circle">2</div>
                 <div class="step-title">รับเรื่อง / จัดสรรช่าง</div>
-                <div class="step-date">{{ $currentStepIndex >= 2 ? ($ticket->technician ? $ticket->technician->name : 'จัดสรรแล้ว') : 'รอดำเนินการ' }}</div>
+                <div class="step-date">
+                    @if($hasTech)
+                        {{ $ticket->technician?->name ?? $ticket->technician_name }}
+                    @else
+                        {{ $currentStepIndex >= 2 ? 'จัดสรรแล้ว' : 'รอมอบหมายช่าง' }}
+                    @endif
+                </div>
             </div>
 
-            <div class="step-node {{ $currentStepIndex >= 3 ? ($currentStepIndex > 3 ? 'completed' : 'active') : '' }}">
+            <div class="step-node {{ $currentStepIndex > 3 ? 'completed' : ($currentStepIndex == 3 ? 'active' : '') }}">
                 <div class="step-circle">3</div>
                 <div class="step-title">ดำเนินการตรวจซ่อม</div>
-                <div class="step-date">{{ $currentStepIndex >= 3 ? 'กำลังแก้ไข' : 'รอดำเนินการ' }}</div>
+                <div class="step-date">
+                    @if($ticket->status === 'completed')
+                        ซ่อมเรียบร้อย
+                    @elseif($ticket->status === 'waiting_parts')
+                        รออะไหล่ / ส่งซ่อม
+                    @elseif($ticket->status === 'in_progress')
+                        กำลังตรวจซ่อม
+                    @else
+                        รอดำเนินการ
+                    @endif
+                </div>
             </div>
 
             <div class="step-node {{ $currentStepIndex >= 4 ? 'completed active' : '' }}">
