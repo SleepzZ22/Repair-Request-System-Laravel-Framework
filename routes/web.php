@@ -15,7 +15,7 @@ use App\Http\Controllers\TicketController;
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::get('/auth/quick/{id}', [AuthController::class, 'quickLogin'])->name('auth.quickLogin');
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+Route::match(['get', 'post'], '/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Root Route - Smart redirect based on Role
 Route::get('/', function () {

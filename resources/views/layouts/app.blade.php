@@ -51,7 +51,7 @@
             <a href="{{ route('auth.quickLogin', 6) }}" class="role-pill {{ $currentUser?->id == 6 ? 'active' : '' }}">
                 ผู้ใช้ (พรทิพย์)
             </a>
-            <a href="{{ route('login') }}" class="role-pill" style="margin-left: 0.25rem;">
+            <a href="{{ route('logout') }}" class="role-pill" style="margin-left: 0.25rem;">
                 ออกจากระบบ
             </a>
         </div>
@@ -145,19 +145,28 @@
             </div>
 
             <div class="sidebar-footer">
-                <div class="user-badge">
-                    <div class="user-avatar">
-                        {{ mb_substr($currentUser?->name ?? 'U', 0, 1) }}
+                <div class="user-badge" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <div class="user-avatar">
+                            {{ mb_substr($currentUser?->name ?? 'U', 0, 1) }}
+                        </div>
+                        <div class="user-info">
+                            <h4>{{ $currentUser?->name ?? 'Guest User' }}</h4>
+                            <p>
+                                @if($currentUser?->isAdmin()) แอดมิน
+                                @elseif($currentUser?->isTechnician()) ช่างไอที
+                                @else พนักงาน
+                                @endif
+                            </p>
+                        </div>
                     </div>
-                    <div class="user-info">
-                        <h4>{{ $currentUser?->name ?? 'Guest User' }}</h4>
-                        <p>
-                            @if($currentUser?->isAdmin()) แอดมิน
-                            @elseif($currentUser?->isTechnician()) ช่างไอที
-                            @else พนักงาน
-                            @endif
-                        </p>
-                    </div>
+                    <a href="{{ route('logout') }}" title="ออกจากระบบ" style="color: var(--text-muted); display: inline-flex; align-items: center; justify-content: center; padding: 0.4rem; border-radius: var(--radius-sm); text-decoration: none;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='var(--text-muted)'">
+                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </a>
                 </div>
             </div>
         </aside>
