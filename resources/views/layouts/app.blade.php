@@ -124,13 +124,6 @@
                         <span>แจ้งซ่อมอุปกรณ์ใหม่</span>
                     </a>
 
-                    <a href="{{ route('tickets.myTickets') }}" class="nav-link {{ request()->routeIs('tickets.myTickets') ? 'active' : '' }}">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                            <polyline points="14 2 14 8 20 8"></polyline>
-                        </svg>
-                        <span>งานแจ้งซ่อมของฉัน</span>
-                    </a>
                 @endif
 
                 <span class="menu-label" style="margin-top: 0.75rem;">เมนูทั่วไป</span>
@@ -193,8 +186,8 @@
                             แดชบอร์ดแอดมิน
                         </a>
                     @else
-                        <a href="{{ route('tickets.myTickets') }}" class="btn btn-secondary btn-sm">
-                            งานของฉัน
+                        <a href="{{ route('tickets.track') }}" class="btn btn-secondary btn-sm">
+                            ค้นหาสถานะงาน
                         </a>
                     @endif
 

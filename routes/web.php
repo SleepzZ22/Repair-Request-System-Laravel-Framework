@@ -25,7 +25,7 @@ Route::get('/', function () {
     } elseif ($user->isTechnician()) {
         return redirect()->route('technician.dashboard');
     } else {
-        return redirect()->route('tickets.myTickets');
+        return redirect()->route('tickets.create');
     }
 })->name('dashboard');
 

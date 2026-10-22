@@ -293,8 +293,22 @@ class TicketController extends Controller
         ]);
 
         $user = Auth::user();
-        $countToday = Ticket::whereDate('created_at', today())->count() + 1;
-        $ticketNo = 'TK-' . date('Ym') . '-' . str_pad($countToday, 3, '0', STR_PAD_LEFT);
+        $prefix = 'TK-' . date('Ym') . '-';
+        $latestTicket = Ticket::where('ticket_no', 'like', $prefix . '%')
+            ->orderBy('ticket_no', 'desc')
+            ->first();
+
+        $nextSeq = 1;
+        if ($latestTicket) {
+            $lastSeq = (int) substr($latestTicket->ticket_no, strlen($prefix));
+            $nextSeq = $lastSeq + 1;
+        }
+
+        $ticketNo = $prefix . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+        while (Ticket::where('ticket_no', $ticketNo)->exists()) {
+            $nextSeq++;
+            $ticketNo = $prefix . str_pad($nextSeq, 3, '0', STR_PAD_LEFT);
+        }
 
         $categoryNames = [
             'computer' => 'คอมพิวเตอร์ / โน้ตบุ๊ก',
