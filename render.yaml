@@ -1,0 +1,35 @@
+services:
+  - type: web
+    name: it-repair-system
+    runtime: docker
+    plan: free
+    region: singapore
+    envVars:
+      - key: APP_NAME
+        value: "ระบบแจ้งซ่อมไอที"
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        value: base64:I21MR1U2ZbeW1LDxVQoNTDS+P/xjXKFYipZFg9YFWAg=
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: aws-0-ap-northeast-1.pooler.supabase.com
+      - key: DB_PORT
+        value: "5432"
+      - key: DB_DATABASE
+        value: postgres
+      - key: DB_USERNAME
+        value: postgres.miibmrawwobpfwrxqqys
+      - key: DB_PASSWORD
+        value: kqHzjyDAHQDJnruh
+      - key: DB_SSLMODE
+        value: require
+      - key: SESSION_DRIVER
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
+      - key: CACHE_STORE
+        value: database
